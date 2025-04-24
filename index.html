@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulasi Alokasi Sumber Daya</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</html>
+<body onload="load()">
+    <div id="loader"></div>
+    <form id="main" class="container ani-up">
+        <div id="inputForm" class="my-5 row">
+            <div class="col-lg-6 pt-3">
+                <label>Masukkan Jumlah Sumber Daya (R)</label><br>
+                <input type="text" id="numResources" class="form-control" max="5" maxlength="1" required>
+            </div>
+            <div class="col-lg-6 pt-3">
+                <label>Masukkan Jumlah Proses (P)</label><br>
+                <input type="text" id="numProcesses" class="form-control" maxlength="1" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="my-5 text-center">
+                    <table id="alloTable" class="table table-bordered">
+                        <h5>Sumber Daya yang Dialokasi</h5>
+                        <tr id="alloResourceRowhead">
+                            <td id="alloResourceCol"></td>
+                            <!-- Kolom Allo Dinamis -->
+                        </tr>
+                        <!-- Baris Allo Dinamis -->
+                    </table>
+                </div>
+                <div class="my-5 text-center">
+                    <h5>Maksimal Sumber Daya yang Dibutuhkan</h5>
+                    <table id="maxTable" class="table table-bordered">
+                        <tr id="maxResourceRowhead">
+                            <td id="maxResourceCol"></td>
+                            <!-- Kolom Maks Dinamis -->
+                        </tr>
+                        <!-- Baris Maks Dinamis -->
+                    </table>
+                </div>
+            </div>
+            <div class="col">
+                <div class="my-5 text-center">
+                    <h5>Sumber Daya yang Tersedia</h5>
+                    <table id="availTable" class="table table-bordered">
+                        <tr id="availResourceRowhead">
+                            <div id="availResourceCol"></div>
+                            <!-- Kolom Tersedia Dinamis -->
+                        </tr>
+                        <tr id="availResourceInput">
+                            <div id="availResourceInputCol"></div>
+                            <!-- Kolom Input Tersedia Dinamis -->
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <button class="btn btn-primary">Hitung</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <script>
+        $(document).ready(function() {
+            //Reset ketika refresh
+            $('#numProcesses').val('');
+            $('#numResources').val('');
+            //Proses baris
+            $('#numProcesses').keyup(function() {
+                $('#alloTable tr:not(#alloResourceRowhead)').remove();
+                $('#maxTable tr:not(#maxResourceRowhead)').remove();
+                var processRow = parseInt(this.value) || 0;
+                for (var i = 1; i <= processRow; i++) {
+                    var alloRow = $('<tr><td>P' + i + '</td></tr>');
+                    var maxRow = $('<tr><td>P' + i + '</td></tr>');
+                    for (var j = 1; j <= $('#numResources').val(); j++) {
+                        alloRow.append('<td><input type="text" maxlength="1" id="a' + i + j + '" class="form-control"></td>');
+                        maxRow.append('<td><input type="text" maxlength="1" id="a' + i + j + '" class="form-control"></td>');
+                    }
+                    $('#alloTable').append(alloRow);
+                    $('#maxTable').append(maxRow);
+                }
+            });
+            //Proses kolom
+            $('#numResources').keyup(function() {
+                $('#alloResourceRowhead td:not(#alloResourceCol)').remove();
+                $('#maxResourceRowhead td:not(#maxResourceCol)').remove();
+                $('#availResourceRowhead td:not(#availResourceCol)').remove();
+                $('#availResourceInput td:not(#availResourceInputCol)').remove();
+                var resourceCol = parseInt(this.value) || 0;
+                for (var i = 1; i <= resourceCol; i++) {
+                    var col = $('<td>R' + i + '</td>')
+                    var availRow = $('<td><input type="text" maxlength="1" id="a' + i + '" class="form-control"></td>');
+                    $('#alloResourceRowhead').append(col);
+                    $('#maxResourceRowhead').append(col.clone());
+                    $('#availResourceRowhead').append(col.clone());
+                    $('#availResourceInput').append(availRow);
+                }
+            });
+        });
+        //Proses loading
+        function load () {
+            myvar = setTimeout(showPage, 100);
+        }
+        function showPage() {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("main").style.display = "block";
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    
+</body>
