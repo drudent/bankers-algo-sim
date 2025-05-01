@@ -46,4 +46,17 @@
 
 #main {
     display: none;
-  }
+}
+
+.highlight {
+    animation: flash 0.5s ease-in-out;
+    background-color: yellow !important;
+}
+
+@keyframes flash {
+    from { background-color: transparent; }
+    to { background-color: yellow; }
+}
+
+
+
