@@ -166,7 +166,10 @@ function isSafeState() {
                     }
                     safeSequence.push('P' + (p + 1));
                     availableSnapshots.push([...available]);
-                    processOrder.push({ pid: p });
+                    processOrder.push({ 
+                        pid: p,
+                        available: [...available] 
+                    });
                     finish[p] = true;
                     completedCount++;
                     found = true;
@@ -233,10 +236,11 @@ function isSafeState() {
 
     // Baris akhir untuk available terakhir
     resultTable += `<tr><td colspan="${1 + 2 * m}"><strong>Akhir</strong></td>`;
-    availableSnapshots[availableSnapshots.length - 1].forEach(val => {
-        resultTable += `<td><strong>${val}</strong></td>`;
+    availableSnapshots[availableSnapshots.length - 1].forEach((val, r) => {
+        resultTable += `<td class="avail-cell avail-end avail-final-r${r}"><strong>${val}</strong></td>`;
     });
-    resultTable += `</tr></tbody></table>`;
+    resultTable += `</tr>`;
+
 
     const wrappedTable = `<div class="my-5 row border rounded shadow-sm px-3">${resultTable}</div>`;
     $('#result-table').html(wrappedTable);
@@ -250,7 +254,7 @@ function isSafeState() {
     $('#simulate-btn').off('click').on('click', function () {
         let delay = 0;
         const delayStep = 1000;
-
+    
         const highlightCells = (type, pid) => {
             for (let r = 0; r < m; r++) {
                 setTimeout(() => {
@@ -262,7 +266,7 @@ function isSafeState() {
                 delay += delayStep;
             }
         };
-
+    
         const highlightStepAvail = (stepIndex) => {
             for (let r = 0; r < m; r++) {
                 setTimeout(() => {
@@ -274,30 +278,39 @@ function isSafeState() {
                 delay += delayStep;
             }
         };
-
+    
+        // Animasikan berdasarkan urutan proses yang disetujui
         for (let i = 0; i < processOrder.length; i++) {
-            const currPid = processOrder[i].pid;
-            const nextPid = processOrder[i + 1]?.pid;
+            const pid = processOrder[i].pid;
 
+            // 1. Highlight available sebelum alokasi
             highlightStepAvail(i);
-            highlightCells('max', currPid);
 
-            if (nextPid !== undefined) {
-                highlightCells('max', nextPid);
-                highlightCells('alloc', nextPid);
-            } else {
-                // Proses terakhir juga harus dianimasikan
-                highlightCells('alloc', currPid);
-            }            
+            // 2. Highlight need (bisa diganti jadi max jika tidak ada need)
+            highlightCells('max', pid);
+
+            // 3. Highlight allocation (alokasi akan ditambahkan ke available)
+            highlightCells('alloc', pid);
         }
 
+        // 4. Highlight baris "Akhir"
+        setTimeout(() => {
+            for (let r = 0; r < m; r++) {
+                setTimeout(() => {
+                    const el = $(`.avail-final-r${r}`);
+                    el.removeClass('highlight');
+                    void el[0]?.offsetWidth;
+                    el.addClass('highlight');
+                }, r * delayStep);
+            }
+        }, delay);
+
+        // 5. Bersihkan semua highlight
         setTimeout(() => {
             $('.highlight').removeClass('highlight');
-        }, delay + 1000);
+        }, delay + m * delayStep + 500);
     });
 }
-
-
 
 //Proses loading
 function load () {
